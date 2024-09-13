@@ -5,8 +5,8 @@ import logoImg from "../assets/logo.jpg";
 import CartContext from "../store/CartContext";
 
 const Header = () => {
+  // update the cart counter order button in header
   const cartCtx = useContext(CartContext);
-
   const totalCartItems = cartCtx.items.reduce((totalNumbersOfItems, items) => {
     return totalNumbersOfItems + items.quantity;
   }, 0);
