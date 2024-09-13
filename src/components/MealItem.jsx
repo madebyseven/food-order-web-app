@@ -7,6 +7,8 @@ const MealItem = (props) => {
   const cartCtx = useContext(CartContext);
 
   const handleAddMealToCart = () => {
+    // alert("added to cart");
+    // console.log("added to cart");
     cartCtx.addItem(props.meal);
   };
 
