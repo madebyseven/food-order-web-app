@@ -1,31 +1,50 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-const useHttp = (url, requestConfig, initialData = null) => {
+const sendHttpRequest = async (url, config) => {
+  // async function sendHttpRequest(url, config) {
+  const response = await fetch(url, config);
+
+  const resData = await response.json();
+  //   console.log(resData);
+
+  if (!response.ok) {
+    throw new Error(
+      resData.message || "Something went wrong, failed to send request."
+    );
+  }
+  return resData;
+};
+
+const useHttp = (url, config, initialData) => {
+  // export default function useHttp(url, config, initialData) {
   const [data, setData] = useState(initialData);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState();
+
+  const sendRequest = useCallback(async () => {
+    // async function () {
+    setIsLoading(true);
+    try {
+      const resData = await sendHttpRequest(url, config);
+      setData(resData);
+    } catch (error) {
+      setError(error.message || "Something went wrong.");
+    }
+    setIsLoading(false);
+  }, [url, config]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(url, requestConfig);
-        if (!response.ok) {
-          throw new Error("Failed to fetch");
-        }
-        const data = await response.json();
-        setData(data);
-      } catch (err) {
-        setError(err.message);
-      }
-      setIsLoading(false);
-    };
+    if ((config && (config.method === "GET" || !config.method)) || !config) {
+      sendRequest();
+    }
+  }, [sendRequest, config]);
 
-    fetchData();
-  }, [url, requestConfig]);
-
-  return { data, isLoading, error };
+  return {
+    data,
+    isLoading,
+    error,
+    sendRequest,
+  };
 };
 
 export default useHttp;
